@@ -330,7 +330,11 @@
         </div>
         <div class="bg-surface-container-lowest text-on-surface p-12 rounded-[3rem] shadow-xl">
           <h3 class="text-2xl font-extrabold font-headline mb-6 text-primary">Comienza tu Transformación Hoy</h3>
-          <form action="/send_email.php" method="POST" class="space-y-4">
+          <!-- IMPORTANTE: Vercel no soporta PHP. 
+               Para que el formulario funcione, debes cambiar 'tu_correo@ejemplo.com' por tu email real en "action". -->
+          <form action="https://formsubmit.co/tu_correo@ejemplo.com" method="POST" class="space-y-4">
+            <input type="hidden" name="_next" value="https://visioncordillera.vercel.app/">
+            <input type="hidden" name="_captcha" value="false">
             <div>
               <label
                 class="block text-sm font-bold text-on-surface-variant mb-2 font-headline uppercase tracking-wider">Nombre
