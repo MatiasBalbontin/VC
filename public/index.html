@@ -332,7 +332,8 @@
           <h3 class="text-2xl font-extrabold font-headline mb-6 text-primary">Comienza tu Transformación Hoy</h3>
           <!-- IMPORTANTE: Vercel no soporta PHP. 
                Para que el formulario funcione, debes cambiar 'tu_correo@ejemplo.com' por tu email real en "action". -->
-          <form action="https://formsubmit.co/tu_correo@ejemplo.com" method="POST" class="space-y-4">
+          <form id="contactoForm" action="https://formsubmit.co/matias.balbo@hotmail.com" method="POST"
+            class="space-y-4">
             <input type="hidden" name="_next" value="https://visioncordillera.vercel.app/">
             <input type="hidden" name="_captcha" value="false">
             <div>
@@ -415,6 +416,117 @@
                   -->
     </div>
   </footer>
+
+  <!-- Success Modal -->
+  <div id="successModal"
+    class="fixed inset-0 z-[100] hidden items-center justify-center bg-slate-900/50 backdrop-blur-sm transition-opacity opacity-0 duration-300">
+    <div id="successModalContent"
+      class="bg-white p-8 rounded-3xl shadow-2xl max-w-sm w-full text-center transform scale-95 transition-transform duration-300">
+      <div class="w-20 h-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-6">
+        <span class="material-symbols-outlined text-5xl">check_circle</span>
+      </div>
+      <h3 class="text-2xl font-bold font-headline text-blue-900 mb-4">¡Enviado con éxito!</h3>
+      <p class="text-slate-600 font-body mb-6">Hemos recibido tu información. Nos pondremos en contacto contigo muy
+        pronto.</p>
+      <p class="text-sm text-slate-400 font-body mb-6" id="redirectText">Volviendo en <span id="countdown">5</span>
+        segundos...</p>
+      <button id="closeModalBtn"
+        class="w-full bg-blue-600 text-white py-3 rounded-xl font-bold font-headline hover:bg-blue-700 transition-all shadow-md active:scale-95">
+        Volver ahora
+      </button>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const form = document.getElementById('contactoForm');
+      const modal = document.getElementById('successModal');
+      const modalContent = document.getElementById('successModalContent');
+      const closeBtn = document.getElementById('closeModalBtn');
+      const countdownSpan = document.getElementById('countdown');
+      let countdownInterval;
+      let redirectTimeout;
+
+      function showModal() {
+        // Mostrar el modal
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+
+        // Pequeño delay para permitir que el display flex aplique antes de animar opacidad
+        setTimeout(() => {
+          modal.classList.remove('opacity-0');
+          modalContent.classList.remove('scale-95');
+          modalContent.classList.add('scale-100');
+        }, 10);
+
+        // Iniciar conteo regresivo
+        let timeLeft = 5;
+        countdownSpan.textContent = timeLeft;
+
+        countdownInterval = setInterval(() => {
+          timeLeft--;
+          countdownSpan.textContent = timeLeft;
+          if (timeLeft <= 0) {
+            clearInterval(countdownInterval);
+            closeModal();
+            // Redirigir a la página principal limpiando los hashes
+            window.location.href = window.location.pathname;
+          }
+        }, 1000);
+      }
+
+      function closeModal() {
+        clearInterval(countdownInterval);
+        clearTimeout(redirectTimeout);
+
+        modal.classList.add('opacity-0');
+        modalContent.classList.remove('scale-100');
+        modalContent.classList.add('scale-95');
+
+        setTimeout(() => {
+          modal.classList.add('hidden');
+          modal.classList.remove('flex');
+        }, 300);
+      }
+
+      closeBtn.addEventListener('click', () => {
+        closeModal();
+        window.location.href = window.location.pathname;
+      });
+
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+
+        const submitBtn = form.querySelector('button[type="submit"]');
+        const originalBtnText = submitBtn.innerHTML;
+        submitBtn.innerHTML = 'Enviando...';
+        submitBtn.disabled = true;
+
+        fetch(form.action, {
+          method: 'POST',
+          body: new FormData(form),
+          headers: {
+            'Accept': 'application/json'
+          }
+        })
+          .then(response => {
+            if (response.ok) {
+              form.reset();
+              showModal();
+            } else {
+              alert('Hubo un error al enviar el formulario. Por favor intenta de nuevo.');
+            }
+          })
+          .catch(error => {
+            alert('Hubo un error de conexión al enviar el formulario.');
+          })
+          .finally(() => {
+            submitBtn.innerHTML = originalBtnText;
+            submitBtn.disabled = false;
+          });
+      });
+    });
+  </script>
 </body>
 
 </html>
